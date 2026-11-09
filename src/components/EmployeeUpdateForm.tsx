@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useEmployees } from "../hooks/useEmployees";
+import { useState, ChangeEvent, FormEvent, FC } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useEmployees } from '../hooks/useEmployees';
+import { EmployeeFormData } from '../types/employee';
 import {
   Pencil,
   ArrowLeft,
@@ -12,29 +13,29 @@ import {
   Check,
   UserX,
   Hash
-} from "lucide-react";
+} from 'lucide-react';
 
-const EmployeeUpdateForm = () => {
+const EmployeeUpdateForm: FC = () => {
   const { employees, updateEmployee, departments = [] } = useEmployees();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   // Find the employee using the URL parameter
   const employee = employees.find(
-    (employee) => employee.id === id
+    (emp) => emp.id === id
   );
 
-  const [formData, setFormData] = useState({
-    name: employee?.name || "",
-    email: employee?.email || "",
-    designation: employee?.designation || "",
-    department: employee?.department || "",
+  const [formData, setFormData] = useState<EmployeeFormData>({
+    name: employee?.name || '',
+    email: employee?.email || '',
+    designation: employee?.designation || '',
+    department: employee?.department || '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle employee not found
-  if (!employee) {
+  if (!employee || !id) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
         <div className="bg-white rounded-2xl border border-slate-200/90 p-8 shadow-xs">
@@ -43,10 +44,10 @@ const EmployeeUpdateForm = () => {
           </div>
           <h2 className="text-xl font-bold text-slate-900">Employee Not Found</h2>
           <p className="text-sm text-slate-500 mt-2 mb-6">
-            We couldn't locate any employee profile with identifier <strong className="font-mono text-slate-800">{id}</strong>.
+            We couldn't locate any employee profile with identifier <strong className="font-mono text-slate-800">{id || 'unknown'}</strong>.
           </p>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate('/')}
             className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -58,7 +59,7 @@ const EmployeeUpdateForm = () => {
   }
 
   // Handle input changes
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -66,12 +67,12 @@ const EmployeeUpdateForm = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const updatedEmployee = {
+      const updatedEmployee: EmployeeFormData = {
         name: formData.name,
         email: formData.email,
         designation: formData.designation,
@@ -81,8 +82,8 @@ const EmployeeUpdateForm = () => {
       updateEmployee(id, updatedEmployee);
       navigate(`/employee/${id}`);
     } catch (error) {
-      console.error("Error updating employee:", error);
-      window.alert("Error updating employee. Please try again.");
+      console.error('Error updating employee:', error);
+      window.alert('Error updating employee. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -258,3 +259,4 @@ const EmployeeUpdateForm = () => {
 };
 
 export default EmployeeUpdateForm;
+

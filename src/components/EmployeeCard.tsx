@@ -1,5 +1,6 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEmployees } from "../hooks/useEmployees.js";
+import { FC } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useEmployees } from '../hooks/useEmployees';
 import {
   ArrowLeft,
   Pencil,
@@ -10,21 +11,21 @@ import {
   Hash,
   ShieldCheck,
   UserX
-} from "lucide-react";
-import { getDepartmentBadgeStyle, getInitials, getAvatarGradient } from "../utils/uiHelpers.js";
+} from 'lucide-react';
+import { getDepartmentBadgeStyle, getInitials, getAvatarGradient } from '../utils/uiHelpers';
 
-const EmployeeCard = () => {
+const EmployeeCard: FC = () => {
   const navigate = useNavigate();
   const { employees, removeEmployee } = useEmployees();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
   // Find employee by ID
   const employee = employees.find(
-    (employee) => employee.id === id
+    (emp) => emp.id === id
   );
 
   // Handle employee not found
-  if (!employee) {
+  if (!employee || !id) {
     return (
       <div className="max-w-md mx-auto text-center py-12">
         <div className="bg-white rounded-2xl border border-slate-200/90 p-8 shadow-xs">
@@ -33,10 +34,10 @@ const EmployeeCard = () => {
           </div>
           <h2 className="text-xl font-bold text-slate-900">Employee Not Found</h2>
           <p className="text-sm text-slate-500 mt-2 mb-6">
-            We couldn't locate any profile matching identifier <strong className="font-mono text-slate-800">{id}</strong>.
+            We couldn't locate any profile matching identifier <strong className="font-mono text-slate-800">{id || 'unknown'}</strong>.
           </p>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate('/')}
             className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -54,7 +55,7 @@ const EmployeeCard = () => {
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to remove ${employee.name} from the employee directory?`)) {
       removeEmployee(employee.id);
-      navigate("/");
+      navigate('/');
     }
   };
 
@@ -63,7 +64,7 @@ const EmployeeCard = () => {
       {/* Navigation Breadcrumb / Back button */}
       <div>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate('/')}
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -74,7 +75,7 @@ const EmployeeCard = () => {
       {/* Main Profile Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
         {/* Decorative Top Banner */}
-        <div className="h-32 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 relative px-6">
+        <div className="h-32 bg-linear-to-r from-indigo-600 via-indigo-700 to-purple-700 relative px-6">
           <div className="absolute right-6 top-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -205,7 +206,7 @@ const EmployeeCard = () => {
         {/* Footer Actions */}
         <div className="px-6 sm:px-8 py-4 border-t border-slate-100 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate('/')}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-xs sm:text-sm transition cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -214,7 +215,7 @@ const EmployeeCard = () => {
 
           <button
             onClick={() => navigate(`/employee/edit/${id}`)}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs sm:text-sm shadow-xs transition cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs sm:text-sm shadow-xs transition cursor-pointer"
           >
             <Pencil className="w-4 h-4" />
             <span>Edit Employee</span>
@@ -226,3 +227,4 @@ const EmployeeCard = () => {
 };
 
 export default EmployeeCard;
+
