@@ -1,18 +1,19 @@
-import { Routes, Route, Link, useLocation } from "react-router-dom";
-import { Users, UserPlus, Sparkles } from "lucide-react";
-import EmployeeTable from "./components/EmployeeTable";
-import EmployeeForm from "./components/EmployeeForm";
-import EmployeeCard from "./components/EmployeeCard";
-import EmployeeUpdateForm from "./components/EmployeeUpdateForm";
-import { useEmployees } from "./hooks/useEmployees";
-import "./App.css";
+import { FC } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Users, UserPlus, Sparkles } from 'lucide-react';
+import EmployeeTable from './components/EmployeeTable';
+import EmployeeForm from './components/EmployeeForm';
+import EmployeeCard from './components/EmployeeCard';
+import EmployeeUpdateForm from './components/EmployeeUpdateForm';
+import { useEmployees } from './hooks/useEmployees';
+import './App.css';
 
-const App = () => {
+const App: FC = () => {
   const location = useLocation();
   const { employees } = useEmployees();
 
-  const isDirectory = location.pathname === "/";
-  const isAddPage = location.pathname === "/add-employee";
+  const isDirectory = location.pathname === '/';
+  const isAddPage = location.pathname === '/add-employee';
 
   return (
     <div className="min-h-screen bg-slate-50/60 flex flex-col font-sans text-slate-800 antialiased">
@@ -46,11 +47,10 @@ const App = () => {
           <nav className="flex items-center gap-3">
             <Link
               to="/"
-              className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-colors ${
-                isDirectory
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
-              }`}
+              className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-colors ${isDirectory
+                  ? 'bg-slate-100 text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                }`}
             >
               All Employees
               <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-200/80 text-slate-700">
@@ -60,11 +60,10 @@ const App = () => {
 
             <Link
               to="/add-employee"
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-xs ${
-                isAddPage
-                  ? "bg-indigo-700 text-white ring-2 ring-indigo-400/50"
-                  : "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-indigo-500/20"
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-xs ${isAddPage
+                  ? 'bg-indigo-700 text-white ring-2 ring-indigo-400/50'
+                  : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-indigo-500/20'
+                }`}
             >
               <UserPlus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Employee</span>
@@ -89,7 +88,7 @@ const App = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-indigo-500" />
-            <span>StaffHub • Modern Employee Directory & Operations</span>
+            <span>Modern Employee Directory & Operations</span>
           </div>
           <div>
             Total Team Members: <strong className="text-slate-700">{employees.length}</strong>

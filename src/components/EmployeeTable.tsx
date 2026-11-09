@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, ChangeEvent, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEmployees } from '../hooks/useEmployees';
 import EmployeeTableCell from './EmployeeTableCell';
@@ -11,26 +11,26 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  SearchX,
-  FilterIcon
+  SearchX
 } from 'lucide-react';
 
-const EmployeeTable = () => {
+interface PaginationState {
+  searchItem: string;
+  currentPage: number;
+}
+
+const EmployeeTable: FC = () => {
   const navigate = useNavigate();
   const { employees } = useEmployees();
 
-  const departments = employees.map(e => e.department).filter(Boolean);
-  console.log(departments);
-
   // Search and pagination state
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<PaginationState>({
     searchItem: '',
     currentPage: 1
   });
 
   const { searchItem, currentPage: rawCurrentPage } = pagination;
   const employeesPerPage = 5;
-  const [isFilteropen, setFilteropen] = useState(false);
 
   // Department count metrics
   const uniqueDepartments = useMemo(() => {
@@ -78,7 +78,7 @@ const EmployeeTable = () => {
   );
 
   // Handle search and reset pagination
-  const handleSearch = (e) => {
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setPagination({
       searchItem: e.target.value,
       currentPage: 1
@@ -94,7 +94,7 @@ const EmployeeTable = () => {
   };
 
   // Handle page navigation
-  const handlePageChange = (pageNumber) => {
+  const handlePageChange = (pageNumber: number) => {
     setPagination(prev => ({
       ...prev,
       currentPage: pageNumber
@@ -172,7 +172,7 @@ const EmployeeTable = () => {
       {/* Main Table Card */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         {/* Toolbar: Search input */}
-        <div className="p-4 sm:p-5 border-b border-slate-200/80 bg-white flex  sm:flex-row gap-3 items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-200/80 bg-white flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:max-w-md">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -191,8 +191,6 @@ const EmployeeTable = () => {
                 <X className="w-4 h-4" />
               </button>
             )}
-            
-            
           </div>
 
           {searchItem && (
@@ -200,27 +198,6 @@ const EmployeeTable = () => {
               Found <strong className="text-slate-800">{filteredEmployees.length}</strong> {filteredEmployees.length === 1 ? 'employee' : 'employees'}
             </p>
           )}
-          {/* Filter Function */}
-          <div className='relative flex flex-col gap-2'>
-              <FilterIcon onClick={() => {setFilteropen(prev => !prev)}}/>
-              {/* Department Accordion */}
-              {
-                isFilteropen && (
-                  <div className={`${isFilteropen ? 'block' : 'hidden'} absolute top-10 -right-5 flex flex-col items-center justify-center max-w-md bg-white backdrop-blur-3xl shadow-2xl px-4 py-2 rounded-2xl z-50`}>
-                    {
-                      departments.map((department) => {
-                        return (
-                          <div className='flex flex-col items-center justify-center'>
-                            <span className='text-sm hover:translate-x-2 transition-transform ease-in-out duration-200 hover:bg-gray-400/50 px-2 py-2'>{department}</span>
-                          </div>
-                        )
-                      })
-                    }
-                  </div>
-                )
-              }
-
-            </div>
         </div>
 
         {/* Table Content */}
@@ -246,7 +223,7 @@ const EmployeeTable = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-16 text-center">
+                  <td colSpan={5} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                       <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
                         {searchItem ? (
@@ -356,3 +333,4 @@ const EmployeeTable = () => {
 };
 
 export default EmployeeTable;
+

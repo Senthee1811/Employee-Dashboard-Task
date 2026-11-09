@@ -1,9 +1,11 @@
+import { FC } from 'react';
 import { useEmployees } from '../hooks/useEmployees';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Pencil, Trash2, Mail } from 'lucide-react';
 import { getDepartmentBadgeStyle, getInitials, getAvatarGradient } from '../utils/uiHelpers';
+import { Employee } from '../types/employee';
 
-const EmployeeTableCell = ({
+const EmployeeTableCell: FC<Employee> = ({
   name,
   designation,
   id,
@@ -108,3 +110,4 @@ const EmployeeTableCell = ({
 };
 
 export default EmployeeTableCell;
+

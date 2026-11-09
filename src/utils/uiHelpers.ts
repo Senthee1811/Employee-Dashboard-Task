@@ -1,7 +1,14 @@
+export interface DepartmentStyle {
+  bg: string;
+  text: string;
+  border: string;
+  dot: string;
+}
+
 /**
  * Returns consistent styling tokens based on department name.
  */
-export const getDepartmentBadgeStyle = (department = '') => {
+export const getDepartmentBadgeStyle = (department = ''): DepartmentStyle => {
   const dept = department.toLowerCase().trim();
 
   if (dept.includes('eng') || dept.includes('dev') || dept.includes('software') || dept.includes('tech')) {
@@ -80,7 +87,7 @@ export const getDepartmentBadgeStyle = (department = '') => {
 /**
  * Extract up to 2 uppercase initials from a full name.
  */
-export const getInitials = (name = '') => {
+export const getInitials = (name = ''): string => {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
@@ -100,7 +107,7 @@ const GRADIENTS = [
   'from-violet-500 to-purple-600'
 ];
 
-export const getAvatarGradient = (name = '') => {
+export const getAvatarGradient = (name = ''): string => {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, ChangeEvent, FormEvent, FC } from 'react';
 import { useEmployees } from '../hooks/useEmployees';
 import { useNavigate } from 'react-router-dom';
-import { generateEmployeeId } from '../utils/generateEmployeeId.js';
+import { generateEmployeeId } from '../utils/generateEmployeeId';
+import { EmployeeFormData } from '../types/employee';
 import {
   UserPlus,
   ArrowLeft,
@@ -14,16 +15,16 @@ import {
   Hash
 } from 'lucide-react';
 
-const EmployeeForm = () => {
+const EmployeeForm: FC = () => {
   const navigate = useNavigate();
   const { employees, addEmployee, departments = [] } = useEmployees();
 
   // Generate ID when the form component mounts
-  const [generateId] = useState(
+  const [generateId] = useState<string>(
     () => generateEmployeeId(employees)
   );
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EmployeeFormData>({
     name: '',
     designation: '',
     email: '',
@@ -33,7 +34,7 @@ const EmployeeForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle input changes
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
@@ -41,7 +42,7 @@ const EmployeeForm = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -231,3 +232,4 @@ const EmployeeForm = () => {
 };
 
 export default EmployeeForm;
+

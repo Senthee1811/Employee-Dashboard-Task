@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { EmployeeContext } from './EmployeeContext';
+import { Employee, EmployeeFormData, EmployeeContextType } from '../types/employee';
 
-const SEED_EMPLOYEES = [
+const SEED_EMPLOYEES: Employee[] = [
   {
     id: 'EMP-0001',
     name: 'Sarah Connor',
@@ -53,7 +54,7 @@ const SEED_EMPLOYEES = [
   }
 ];
 
-const DEFAULT_DEPARTMENTS = [
+const DEFAULT_DEPARTMENTS: string[] = [
   'Engineering',
   'Design',
   'Product',
@@ -65,14 +66,18 @@ const DEFAULT_DEPARTMENTS = [
 
 const STORAGE_KEY = 'employee_dashboard_records';
 
-export const EmployeeProvider = ({ children }) => {
-  const [employees, setEmployees] = useState(() => {
+interface EmployeeProviderProps {
+  children: ReactNode;
+}
+
+export const EmployeeProvider = ({ children }: EmployeeProviderProps) => {
+  const [employees, setEmployees] = useState<Employee[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          return parsed as Employee[];
         }
       }
     } catch (err) {
@@ -89,11 +94,11 @@ export const EmployeeProvider = ({ children }) => {
     }
   }, [employees]);
 
-  const addEmployee = (employee) => {
+  const addEmployee = (employee: Employee) => {
     setEmployees(prev => [...prev, employee]);
   };
 
-  const updateEmployee = (id, updatedData) => {
+  const updateEmployee = (id: string, updatedData: Partial<EmployeeFormData>) => {
     setEmployees(prev =>
       prev.map(employee =>
         employee.id === id
@@ -103,20 +108,20 @@ export const EmployeeProvider = ({ children }) => {
     );
   };
 
-  const removeEmployee = (id) => {
+  const removeEmployee = (id: string) => {
     setEmployees(prev =>
       prev.filter(employee => employee.id !== id)
     );
   };
 
-  const departments = Array.from(
+  const departments: string[] = Array.from(
     new Set([
       ...DEFAULT_DEPARTMENTS,
       ...employees.map(e => e.department).filter(Boolean)
     ])
   );
 
-  const value = {
+  const value: EmployeeContextType = {
     employees,
     addEmployee,
     updateEmployee,
@@ -130,3 +135,4 @@ export const EmployeeProvider = ({ children }) => {
     </EmployeeContext.Provider>
   );
 };
+
