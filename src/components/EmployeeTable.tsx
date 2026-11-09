@@ -4,12 +4,14 @@ import { useEmployees } from '../hooks/useEmployees';
 import EmployeeTableCell from './EmployeeTableCell';
 import {
   Search,
-  UserPlus,
   Users,
   Building2,
   Briefcase,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  Filter,
+  Check,
   X,
   SearchX
 } from 'lucide-react';
@@ -21,16 +23,30 @@ interface PaginationState {
 
 const EmployeeTable: FC = () => {
   const navigate = useNavigate();
-  const { employees } = useEmployees();
+  const { employees, departments = [] } = useEmployees();
 
-  // Search and pagination state
+  // Search, filter, and pagination state
   const [pagination, setPagination] = useState<PaginationState>({
     searchItem: '',
     currentPage: 1
   });
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('All');
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
 
   const { searchItem, currentPage: rawCurrentPage } = pagination;
   const employeesPerPage = 5;
+
+  // Extract unique departments for filter dropdown
+  const filterDepartments = useMemo(() => {
+    const depts = new Set<string>();
+    employees.forEach(e => {
+      if (e.department?.trim()) depts.add(e.department.trim());
+    });
+    departments.forEach(d => {
+      if (d?.trim()) depts.add(d.trim());
+    });
+    return Array.from(depts);
+  }, [employees, departments]);
 
   // Department count metrics
   const uniqueDepartments = useMemo(() => {
@@ -40,13 +56,22 @@ const EmployeeTable: FC = () => {
     return depts.size;
   }, [employees]);
 
-  // Filter employees using all available fields
+  // Filter employees using search query and department filter
   const filteredEmployees = useMemo(() => {
     const query = searchItem.trim().toLowerCase();
-    if (!query) return employees;
 
-    return employees.filter(employee =>
-      [
+    return employees.filter(employee => {
+      // Department filter
+      const matchesDepartment =
+        selectedDepartment === 'All' ||
+        employee.department?.toLowerCase() === selectedDepartment.toLowerCase();
+
+      if (!matchesDepartment) return false;
+
+      // Search query filter
+      if (!query) return true;
+
+      return [
         employee.name,
         employee.id,
         employee.email,
@@ -56,9 +81,9 @@ const EmployeeTable: FC = () => {
         String(value ?? '')
           .toLowerCase()
           .includes(query)
-      )
-    );
-  }, [employees, searchItem]);
+      );
+    });
+  }, [employees, searchItem, selectedDepartment]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
@@ -93,6 +118,25 @@ const EmployeeTable: FC = () => {
     }));
   };
 
+  const handleSelectDepartment = (dept: string) => {
+    setSelectedDepartment(dept);
+    setPagination(prev => ({
+      ...prev,
+      currentPage: 1
+    }));
+    setIsFilterOpen(false);
+  };
+
+  const handleClearAllFilters = () => {
+    setSelectedDepartment('All');
+    setPagination(prev => ({
+      ...prev,
+      searchItem: '',
+      currentPage: 1
+    }));
+    setIsFilterOpen(false);
+  };
+
   // Handle page navigation
   const handlePageChange = (pageNumber: number) => {
     setPagination(prev => ({
@@ -113,15 +157,6 @@ const EmployeeTable: FC = () => {
             Manage your organization's staff, view detailed profiles, and update information.
           </p>
         </div>
-
-        {/* Action Button */}
-        <button
-          onClick={() => navigate('/add-employee')}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-medium text-sm shadow-sm hover:shadow transition-all cursor-pointer shrink-0"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Add New Employee</span>
-        </button>
       </div>
 
       {/* Metric Cards */}
@@ -171,33 +206,119 @@ const EmployeeTable: FC = () => {
 
       {/* Main Table Card */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        {/* Toolbar: Search input */}
+        {/* Toolbar: Search input & Department Filter */}
         <div className="p-4 sm:p-5 border-b border-slate-200/80 bg-white flex flex-col sm:flex-row gap-3 items-center justify-between">
-          <div className="relative w-full sm:max-w-md">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchItem}
-              onChange={handleSearch}
-              className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition"
-              placeholder="Search by name, ID, email, role, department..."
-            />
-            {searchItem && (
+          <div className="flex flex-1 items-center gap-3 w-full sm:max-w-xl">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchItem}
+                onChange={handleSearch}
+                className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition"
+                placeholder="Search by name, ID, email, role, department..."
+              />
+              {searchItem && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                  title="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Department Filter Dropdown */}
+            <div className="relative">
               <button
-                onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
-                title="Clear search"
+                type="button"
+                onClick={() => setIsFilterOpen(prev => !prev)}
+                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
+                  selectedDepartment !== 'All'
+                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`}
+                title="Filter by Department"
               >
-                <X className="w-4 h-4" />
+                <Filter className="w-4 h-4 text-slate-500" />
+                <span>
+                  {selectedDepartment === 'All' ? 'Filter' : selectedDepartment}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
-            )}
+
+              {/* Department Accordion / Popover */}
+              {isFilterOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsFilterOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-fade-in">
+                    <div className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
+                      Filter by Department
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectDepartment('All')}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
+                        selectedDepartment === 'All'
+                          ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                          : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      <span>All Departments</span>
+                      {selectedDepartment === 'All' && (
+                        <Check className="w-3.5 h-3.5 text-indigo-600" />
+                      )}
+                    </button>
+                    {filterDepartments.map(dept => (
+                      <button
+                        key={dept}
+                        type="button"
+                        onClick={() => handleSelectDepartment(dept)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
+                          selectedDepartment === dept
+                            ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                            : 'text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span className="truncate">{dept}</span>
+                        {selectedDepartment === dept && (
+                          <Check className="w-3.5 h-3.5 text-indigo-600" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
-          {searchItem && (
-            <p className="text-xs text-slate-500 self-start sm:self-center">
-              Found <strong className="text-slate-800">{filteredEmployees.length}</strong> {filteredEmployees.length === 1 ? 'employee' : 'employees'}
-            </p>
-          )}
+          {/* Active Filter Indicators & Count */}
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            {selectedDepartment !== 'All' && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <span>Dept: {selectedDepartment}</span>
+                <button
+                  type="button"
+                  onClick={() => handleSelectDepartment('All')}
+                  className="hover:text-indigo-900 cursor-pointer p-0.5 rounded-full"
+                  title="Remove filter"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {(searchItem || selectedDepartment !== 'All') && (
+              <p className="text-xs text-slate-500">
+                Found <strong className="text-slate-800">{filteredEmployees.length}</strong> {filteredEmployees.length === 1 ? 'employee' : 'employees'}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Table Content */}
@@ -226,28 +347,32 @@ const EmployeeTable: FC = () => {
                   <td colSpan={5} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                       <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
-                        {searchItem ? (
+                        {searchItem || selectedDepartment !== 'All' ? (
                           <SearchX className="w-7 h-7" />
                         ) : (
                           <Users className="w-7 h-7" />
                         )}
                       </div>
                       <h3 className="text-base font-semibold text-slate-800">
-                        {searchItem
+                        {searchItem || selectedDepartment !== 'All'
                           ? 'No matching employees'
                           : 'No employees found'}
                       </h3>
                       <p className="text-xs text-slate-500 mt-1 mb-4">
-                        {searchItem
+                        {selectedDepartment !== 'All' && searchItem
+                          ? `No employee records matched "${searchItem}" in the ${selectedDepartment} department.`
+                          : selectedDepartment !== 'All'
+                          ? `No employees currently found in the ${selectedDepartment} department.`
+                          : searchItem
                           ? `No employee records matched "${searchItem}". Try checking for typos or searching with different keywords.`
                           : 'Your employee directory is currently empty. Get started by adding your first team member.'}
                       </p>
-                      {searchItem ? (
+                      {searchItem || selectedDepartment !== 'All' ? (
                         <button
-                          onClick={handleClearSearch}
+                          onClick={handleClearAllFilters}
                           className="px-4 py-2 text-xs font-medium rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
                         >
-                          Clear Search Filter
+                          Clear All Filters
                         </button>
                       ) : (
                         <button
@@ -333,4 +458,3 @@ const EmployeeTable: FC = () => {
 };
 
 export default EmployeeTable;
-
