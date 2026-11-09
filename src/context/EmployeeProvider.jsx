@@ -53,6 +53,16 @@ const SEED_EMPLOYEES = [
   }
 ];
 
+const DEFAULT_DEPARTMENTS = [
+  'Engineering',
+  'Design',
+  'Product',
+  'Marketing',
+  'Sales',
+  'Human Resources',
+  'Finance'
+];
+
 const STORAGE_KEY = 'employee_dashboard_records';
 
 export const EmployeeProvider = ({ children }) => {
@@ -99,11 +109,19 @@ export const EmployeeProvider = ({ children }) => {
     );
   };
 
+  const departments = Array.from(
+    new Set([
+      ...DEFAULT_DEPARTMENTS,
+      ...employees.map(e => e.department).filter(Boolean)
+    ])
+  );
+
   const value = {
     employees,
     addEmployee,
     updateEmployee,
-    removeEmployee
+    removeEmployee,
+    departments
   };
 
   return (

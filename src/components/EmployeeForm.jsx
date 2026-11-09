@@ -9,13 +9,14 @@ import {
   Mail,
   Briefcase,
   Building2,
+  ChevronDown,
   CheckCircle2,
   Hash
 } from 'lucide-react';
 
 const EmployeeForm = () => {
   const navigate = useNavigate();
-  const { employees, addEmployee } = useEmployees();
+  const { employees, addEmployee, departments = [] } = useEmployees();
 
   // Generate ID when the form component mounts
   const [generateId] = useState(
@@ -75,7 +76,7 @@ const EmployeeForm = () => {
       {/* Main Form Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
         {/* Card Header */}
-        <div className="p-6 sm:p-8 border-b border-slate-100 bg-gradient-to-b from-slate-50/80 to-white">
+        <div className="p-6 sm:p-8 border-b border-slate-100 bg-linear-to-b from-slate-50/80 to-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-2xs">
@@ -172,7 +173,7 @@ const EmployeeForm = () => {
               </div>
             </div>
 
-            {/* Department */}
+            {/* Department (Dropdown Selection) */}
             <div className="space-y-1.5">
               <label
                 htmlFor="department"
@@ -181,34 +182,27 @@ const EmployeeForm = () => {
                 Department <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
-                <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
+                <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <select
                   name="department"
                   id="department"
                   value={formData.department}
                   onChange={handleChange}
-                  placeholder="e.g. Engineering, Product, HR"
                   required
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
-                />
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition appearance-none cursor-pointer"
+                >
+                  <option value="" disabled>
+                    Select a department
+                  </option>
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
-          </div>
-
-          {/* Quick Department Suggestions */}
-          <div className="pt-2">
-            <span className="text-xs text-slate-400 mr-2">Suggestions:</span>
-            {['Engineering', 'Design', 'Product', 'Marketing', 'Sales', 'Human Resources', 'Finance'].map(dept => (
-              <button
-                key={dept}
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, department: dept }))}
-                className="inline-block text-xs text-slate-600 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 px-2.5 py-1 rounded-lg mr-1.5 mt-1 transition cursor-pointer"
-              >
-                {dept}
-              </button>
-            ))}
           </div>
 
           {/* Action Buttons */}

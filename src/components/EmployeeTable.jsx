@@ -11,12 +11,16 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  SearchX
+  SearchX,
+  FilterIcon
 } from 'lucide-react';
 
 const EmployeeTable = () => {
   const navigate = useNavigate();
   const { employees } = useEmployees();
+
+  const departments = employees.map(e => e.department).filter(Boolean);
+  console.log(departments);
 
   // Search and pagination state
   const [pagination, setPagination] = useState({
@@ -26,6 +30,7 @@ const EmployeeTable = () => {
 
   const { searchItem, currentPage: rawCurrentPage } = pagination;
   const employeesPerPage = 5;
+  const [isFilteropen, setFilteropen] = useState(false);
 
   // Department count metrics
   const uniqueDepartments = useMemo(() => {
@@ -167,7 +172,7 @@ const EmployeeTable = () => {
       {/* Main Table Card */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         {/* Toolbar: Search input */}
-        <div className="p-4 sm:p-5 border-b border-slate-200/80 bg-white flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-200/80 bg-white flex  sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:max-w-md">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -186,6 +191,8 @@ const EmployeeTable = () => {
                 <X className="w-4 h-4" />
               </button>
             )}
+            
+            
           </div>
 
           {searchItem && (
@@ -193,6 +200,27 @@ const EmployeeTable = () => {
               Found <strong className="text-slate-800">{filteredEmployees.length}</strong> {filteredEmployees.length === 1 ? 'employee' : 'employees'}
             </p>
           )}
+          {/* Filter Function */}
+          <div className='relative flex flex-col gap-2'>
+              <FilterIcon onClick={() => {setFilteropen(prev => !prev)}}/>
+              {/* Department Accordion */}
+              {
+                isFilteropen && (
+                  <div className={`${isFilteropen ? 'block' : 'hidden'} absolute top-10 -right-5 flex flex-col items-center justify-center max-w-md bg-white backdrop-blur-3xl shadow-2xl px-4 py-2 rounded-2xl z-50`}>
+                    {
+                      departments.map((department) => {
+                        return (
+                          <div className='flex flex-col items-center justify-center'>
+                            <span className='text-sm hover:translate-x-2 transition-transform ease-in-out duration-200 hover:bg-gray-400/50 px-2 py-2'>{department}</span>
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
+                )
+              }
+
+            </div>
         </div>
 
         {/* Table Content */}
