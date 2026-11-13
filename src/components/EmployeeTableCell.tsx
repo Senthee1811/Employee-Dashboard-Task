@@ -38,7 +38,7 @@ const EmployeeTableCell: FC<Employee> = ({
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <div
-            className={`w-9 h-9 rounded-xl bg-gradient-to-tr ${avatarGradient} flex items-center justify-center text-white text-xs font-bold shadow-xs shrink-0`}
+            className={`w-9 h-9 rounded-xl bg-linear-to-tr ${avatarGradient} flex items-center justify-center text-white text-xs font-bold shadow-xs shrink-0`}
           >
             {initials}
           </div>
